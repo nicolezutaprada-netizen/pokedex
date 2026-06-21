@@ -1,12 +1,3 @@
-const pokemonLocal = [
-  { nombre: "bulbasaur",  imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",  tipos: ["grass", "poison"] },
-  { nombre: "charmander", imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png",  tipos: ["fire"] },
-  { nombre: "squirtle",   imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png",  tipos: ["water"] },
-  { nombre: "pikachu",    imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", tipos: ["electric"] },
-  { nombre: "jigglypuff", imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/39.png", tipos: ["normal", "fairy"] },
-  { nombre: "gengar",     imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png",  tipos: ["ghost", "poison"] }
-];
-
 
 
 
@@ -96,9 +87,6 @@ function render(lista) {
   });
 }
 
-// Llama a render(), pasándole el array completo → arranca todo el proceso
-render(pokemonLocal);
-
 
 // Busca el <input id="buscador"> del HTML y lo guarda
 const buscador = document.getElementById("buscador");
@@ -111,8 +99,79 @@ buscador.addEventListener("input", function () {
 
   // Filtra el array: solo se queda con los pokémon cuyo nombre CONTIENE lo que escribiste
   // ej: escribes "pika" → solo queda pikachu
-  const filtrados = pokemonLocal.filter(p => p.nombre.includes(texto));
+  const filtrados = pokedex.filter(p => p.nombre.includes(texto));
 
   // Pinta SOLO los pokémon filtrados (no los 6, solo los que coinciden)
   render(filtrados);
 });
+
+
+
+
+
+
+
+
+
+//fetch → pide datos a una URL. Devuelve una promesa.
+//.then → "cuando la promesa anterior se cumpla, haz esto con el resultado". Cada .then recibe lo que entregó el paso anterior.
+//response → parámetro del primer .then. Es lo que entrega fetch: la respuesta cruda, sin abrir (todavía no es el objeto usable).
+//data → parámetro del segundo .then. Es lo que entrega response.json(): el objeto JS final, ya listo para usar (name, sprites, types, etc.).
+//.catch → "si algo falla en cualquier punto de la cadena, haz esto en vez".
+
+
+function adaptarPokemon(data) {
+  // recibe el objeto crudo de la API y lo convierte a tu formato
+
+  return {
+  // devuelve un objeto nuevo, con tus propios nombres
+
+    nombre: data.name,  //data es del anterior de donde se saca toda la info
+    // la API lo llama "name", tú lo llamas "nombre"
+
+    imagen: data.sprites?.front_default ?? "https://via.placeholder.com/96?text=?",
+
+// ?.  → entra a "sprites" SOLO si existe (si no existe, no rompe, da undefined)
+// ??  → si todo lo de la izquierda dio undefined/null, usa el respaldo de la derecha
+
+    tipos:  data.types.map(t => t.type.name)
+    // saca solo el nombre de cada tipo, ej: ["electric"]
+    // t = cada elemento del array tipos (ej: {type: {name: "electric"}})
+// t.type.name = entra a "type", luego a "name", y lo devuelve
+// es lo mismo que: function(t) { return t.type.name; }
+  };
+}
+
+
+
+
+
+// Array con los nombres de los 6 pokémon que quieres traer de la API
+const nombres = ["bulbasaur", "charmander", "squirtle", "pikachu", "jigglypuff", "gengar"];
+
+// Array vacío donde se guardarán los pokémon ya adaptados (para el buscador)
+let pokedex = [];
+
+// Por cada nombre, hace UN fetch a la API y convierte la respuesta a JSON
+// Resultado: un array de 6 promesas (una por cada pokémon)
+const promesas = nombres.map(function (nombre) {
+  return fetch(`https://pokeapi.co/api/v2/pokemon/${nombre}`).then(r => r.json());
+});
+
+// Promise.all = "espera a que las 6 promesas se cumplan TODAS"
+Promise.all(promesas)
+
+  // Cuando las 6 llegaron, "datos" = array con los 6 objetos crudos de la API
+  .then(function (datos) {
+
+    // Adapta cada objeto crudo al formato limpio (nombre, imagen, tipos)
+    pokedex = datos.map(adaptarPokemon);
+
+    // Pinta las 6 tarjetas en pantalla
+    render(pokedex);
+  })
+
+  // Si CUALQUIERA de los 6 fetch falla, muestra error
+  .catch(function () {
+    contenedor.innerHTML = `<p class="col-span-full text-center text-red-600">No se pudo cargar la Pokédex.</p>`;
+  });
