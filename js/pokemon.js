@@ -165,8 +165,6 @@ function mostrarResultado(pokemon) {
 }
 
 
-const mensaje = document.getElementById("mensaje");        // conecta con el div de error
-const spinner = document.getElementById("spinner");        // conecta con el div de "Cargando..."
 
 
 async function mostrarBusqueda(nombre) {

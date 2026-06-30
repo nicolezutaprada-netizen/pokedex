@@ -5,34 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pokédex</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'JetBrains Mono', monospace; }
+    .font-pixel { font-family: 'Press Start 2P', cursive; }
+    .pokedex-shell {
+      background: radial-gradient(circle at 30% 20%, #2a2f45 0%, #14172a 60%, #0b0d18 100%);
+    }
+    .scan-line {
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03) 0px,
+        rgba(255,255,255,0.03) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .led-active { animation: blink 1.8s ease-in-out infinite; }
+    ::placeholder { color: #5b6589; }
+    .card-glow:hover { box-shadow: 0 0 0 2px #ef4444, 0 8px 24px -4px rgba(239,68,68,0.35); }
+  </style>
 </head>
-<body class="bg-slate-100 min-h-screen p-6">
-  <h1 class="text-3xl font-bold text-center text-slate-800 mb-6">Pokédex</h1>
+<body class="pokedex-shell scan-line min-h-screen p-6 text-slate-100">
 
+  <header class="max-w-2xl mx-auto mb-8 flex items-center justify-center gap-3">
+    <span class="w-4 h-4 rounded-full bg-red-500 led-active shadow-[0_0_10px_2px_rgba(239,68,68,0.7)]"></span>
+    <h1 class="font-pixel text-2xl sm:text-3xl text-center tracking-wide">
+      <span class="text-red-500">Poké</span><span class="text-slate-100">dex</span>
+    </h1>
+    <span class="w-4 h-4 rounded-full bg-yellow-400 led-active shadow-[0_0_10px_2px_rgba(250,204,21,0.6)]" style="animation-delay:.6s"></span>
+  </header>
 
+  <div class="max-w-md mx-auto flex gap-2 mb-6">
+    <input id="buscador" type="text" placeholder="Busca un Pokémon (ej. charizard)"
+           class="flex-1 p-3 rounded-lg bg-slate-900/80 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition">
+    <button id="btn-buscar"
+            class="px-5 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-400 active:scale-95 transition shadow-[0_3px_0_0_#7f1d1d] active:shadow-none active:translate-y-[3px]">
+      Buscar
+    </button>
+  </div>
 
-<div class="max-w-md mx-auto flex gap-2 mb-6">
-  <input id="buscador" type="text" placeholder="Busca un Pokémon (ej. charizard)"
-         class="flex-1 p-2 rounded-lg border border-slate-300">
-  <button id="btn-buscar" class="px-4 py-2 bg-yellow-400 font-semibold rounded-lg hover:bg-yellow-500">
-    Buscar
-  </button>
-</div>
+  <div id="spinner" class="hidden text-center text-slate-400 my-4 font-pixel text-xs tracking-wider animate-pulse">
+    Cargando…
+  </div>
+  <div id="mensaje" class="hidden max-w-md mx-auto text-center text-red-300 bg-red-950/60 border border-red-700 rounded-lg py-2 px-4 font-medium my-4"></div>
 
+  <div id="resultado" class="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 [&>article]:bg-slate-900/80 [&>article]:border [&>article]:border-slate-700 [&>article]:rounded-xl [&>article]:shadow-lg [&>article]:transition [&>article]:duration-200 [&>article]:hover:-translate-y-1 [&>article]:card-glow"></div>
 
-<div id="spinner" class="hidden text-center text-slate-500 my-4">Cargando…</div>
-<div id="mensaje" class="hidden text-center text-red-600 font-medium my-4"></div>
-
-<div id="resultado"></div>   <!-- ← FALTA ESTO -->
-
-<div class="text-center my-6">
-  <button id="cargar-mas" class="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800">
-    Cargar más
-  </button>
-</div>
+  <div class="text-center my-8">
+    <button id="cargar-mas"
+            class="px-5 py-2 bg-slate-800 text-slate-200 border border-slate-600 rounded-lg hover:bg-slate-700 hover:border-red-500 transition">
+      Cargar más
+    </button>
+  </div>
 
   <script src="js/pokemon.js"></script>
 </body>
 </html>
-
-
